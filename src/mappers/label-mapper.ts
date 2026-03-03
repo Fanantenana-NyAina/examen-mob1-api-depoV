@@ -12,6 +12,7 @@ export class LabelMapper {
       name: label.name,
       color: label.color || DEFAULT_COLOR,
       iconRef: label.iconRef,
+      isArchived: label.isArchived
     };
     return mapped;
   }

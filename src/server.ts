@@ -1,5 +1,7 @@
 import * as cors from "cors";
 import * as express from "express";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import { errorHandler, securityHandler } from "@/middlewares";
 import { authRouter, goalListRouter, goalRouter, labelRouter, projectRouter, swaggerRouter, transactionListRouter, transactionRouter } from "@/routes";
