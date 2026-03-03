@@ -62,7 +62,9 @@ export class TransactionServices {
   }
 
   static async getAll(accountId: string, query: TransactionFilters) {
-    const { page, pageSize, walletId, endingDate, label, maxAmount, minAmount, sort = "desc", sortBy = "date", startingDate, type } = query;
+    const { walletId, endingDate, label, maxAmount, minAmount, sort = "desc", sortBy = "date", startingDate, type } = query;
+    const page = Number(query.page) || 1;
+    const pageSize = Number(query.pageSize) || 20;
 
     return await getPrismaClient().transaction.findMany({
       take: pageSize,

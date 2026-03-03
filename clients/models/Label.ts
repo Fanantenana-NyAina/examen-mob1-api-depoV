@@ -43,6 +43,11 @@ export interface Label {
    * @memberof Label
    */
   id?: string;
+  /**
+   * @type {boolean}
+   * @memberof Label
+   */
+  isArchived?: boolean
 }
 
 /**
@@ -65,6 +70,7 @@ export function LabelFromJSONTyped(json: any, ignoreDiscriminator: boolean): Lab
     color: json["color"] == null ? undefined : json["color"],
     iconRef: json["iconRef"] == null ? undefined : json["iconRef"],
     id: json["id"] == null ? undefined : json["id"],
+    isArchived: json["isArchived"] == null ? undefined : json["isArchived"],
   };
 }
 
@@ -82,5 +88,6 @@ export function LabelToJSONTyped(value?: Label | null, ignoreDiscriminator: bool
     color: value["color"],
     iconRef: value["iconRef"],
     id: value["id"],
+    isArchived: value["isArchived"],
   };
 }
