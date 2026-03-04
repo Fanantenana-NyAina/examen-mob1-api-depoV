@@ -54,7 +54,7 @@ export class TransactionServices {
     if (!getTransactionById) throw new ApiError(`Transaction with id=${transactionId} not found`, 404);
     // update wallet
     const wallet = await WalletServices.getOneById(accountId, walletId);
-    wallet.amount = wallet.amount + getTransactionById.amount * (getTransactionById.type === "IN" ? 1 : -1);
+    wallet.amount = wallet.amount - getTransactionById.amount * (getTransactionById.type === "IN" ? 1 : -1);
     await getPrismaClient().wallet.update({ data: wallet, where: { id: wallet.id, accountId: wallet.accountId } });
     // update wallet
     await getPrismaClient().transaction.delete({ where: { id: transactionId, walletId, accountId } });
