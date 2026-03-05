@@ -41,15 +41,23 @@ export class WalletServices {
 
   static async archiveOneById(accountId: string, id: string) {
     const getWalletById = await getPrismaClient().wallet.findFirst({ where: { id, accountId } });
-    if (!getWalletById || getWalletById.isArchived) throw new ApiError(`Wallet with id=${id} not found`, 404);
-    getWalletById.isArchived = true;
-    return await getPrismaClient().wallet.update({ data: getWalletById, where: { accountId, id } });
+    if (!getWalletById) throw new ApiError(`Wallet with id=${id} not found`, 404);
+    return await getPrismaClient().wallet.update({
+      data: { isArchived: !getWalletById.isArchived },
+      where: { id, accountId },
+    });
   }
 
-  static async getAll(accountId: string, query: ListFilters & NameFilter & WalletFilter) {
-    const { page, pageSize, name, isActive, walletType } = query;
+  static async getAll(accountId: string, query: ListFilters & NameFilter & WalletFilter & { isArchived?: boolean }) {
+    const { page, pageSize, name, isActive, walletType, isArchived } = query;
 
-    const where = { accountId, name: { contains: name }, ...filterIfNotNull("isActive", isActive), ...filterIfNotNull("type", walletType), isArchived: false };
+    const where = { 
+      accountId, 
+      name: { contains: name }, 
+      ...filterIfNotNull("isActive", isActive), 
+      ...filterIfNotNull("type", walletType), 
+      isArchived: isArchived ?? false 
+    };
 
     const values = await getPrismaClient().wallet.findMany({
       take: pageSize,
