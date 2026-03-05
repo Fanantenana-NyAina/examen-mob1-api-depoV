@@ -55,7 +55,7 @@ export class WalletController {
     try {
       const { walletId } = req.params;
       const accountId = (req as any).account.id;
-      const data = await WalletServices.getOneById(accountId, walletId as string);
+      const data = await WalletServices.archiveOneById(accountId, walletId as string);
       res.json(WalletMapper.toRest(data));
     } catch (err) {
       next(err);
@@ -64,13 +64,13 @@ export class WalletController {
   static readonly getAll: RequestHandler = async (req, res, next) => {
     try {
       const { page, pageSize } = req as any;
-      const { isActive, name, walletType } = req.query as any;
+      const { isActive, name, walletType, isArchived } = req.query as any;
 
       if (walletType && !["CASH", "MOBILE_MONEY", "BANK", "DEBT"].includes(walletType))
         throw new ApiError(`Expected "CASH", "MOBILE_MONEY", "BANK", "DEBT" for walletType but got ${walletType} instead`, 400);
 
       const accountId = (req as any).account.id;
-      const data = await WalletServices.getAll(accountId, { page, pageSize, isActive: getValuesFromQuery.boolean("isActive", isActive), name, walletType });
+      const data = await WalletServices.getAll(accountId, { page, pageSize, isActive: getValuesFromQuery.boolean("isActive", isActive), name, walletType, isArchived: getValuesFromQuery.boolean("isArchived", isArchived) });
       res.json(WalletMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count }));
     } catch (err) {
       next(err);
