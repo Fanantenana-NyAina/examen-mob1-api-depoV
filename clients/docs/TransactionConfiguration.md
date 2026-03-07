@@ -1,24 +1,22 @@
-# SignUpResult
+# TransactionConfiguration
 
 ## Properties
 
-| Name       | Type   |
-| ---------- | ------ |
-| `id`       | string |
-| `username` | string |
-| `email`    | string |
+| Name         | Type   |
+| ------------ | ------ |
+| `reccurency` | number |
+| `countDays`  | number |
 
 ## Example
 
 ```typescript
-import type { SignUpResult } from "";
+import type { TransactionConfiguration } from "";
 
 // TODO: Update the object below with actual values
 const example = {
-  id: null,
-  username: null,
-  email: null,
-} satisfies SignUpResult;
+  reccurency: null,
+  countDays: null,
+} satisfies TransactionConfiguration;
 
 console.log(example);
 
@@ -27,7 +25,7 @@ const exampleJSON: string = JSON.stringify(example);
 console.log(exampleJSON);
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as SignUpResult;
+const exampleParsed = JSON.parse(exampleJSON) as TransactionConfiguration;
 console.log(exampleParsed);
 ```
 

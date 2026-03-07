@@ -33,7 +33,7 @@ paths:
           application/json:
             schema:
               allOf:
-                - $ref: "#/components/schemas/Credentials"
+                - $ref: "#/components/schemas/SignUpCredentials"
       responses:
         "200":
           description: OK
@@ -54,7 +54,7 @@ paths:
           application/json:
             schema:
               allOf:
-                - $ref: "#/components/schemas/Credentials"
+                - $ref: "#/components/schemas/SignInCredentials"
       responses:
         "200":
           description: OK
@@ -820,6 +820,103 @@ paths:
               schema:
                 type: string
                 format: binary
+  /account/{accountId}/configuration:
+    get:
+      tags:
+        - configuration
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Get the current configuration
+      operationId: getConfiguration
+      responses:
+        "200":
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Configuration"
+    put:
+      tags:
+        - configuration
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Update currency and loginWithoutPassword configuration for a specified account
+      operationId: updateBasicConfiguration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/BasicConfiguration"
+      responses:
+        "200":
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Configuration"
+  /account/{accountId}/configuration/transaction:
+    put:
+      tags:
+        - configuration
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Get the current configuration
+      operationId: updateTransactionConfiguration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/TransactionConfiguration"
+      responses:
+        "200":
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Configuration"
+  /account/{accountId}/subscribe:
+    post:
+      tags:
+        - configuration
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Add subscription to the specified account with key
+      operationId: addSubscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Subscription"
+      responses:
+        "200":
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Configuration"
+  /account/{accountId}/subscription/token:
+    post:
+      tags:
+        - configuration
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      summary: Genearte subscription token for a specified account
+      operationId: generateSubsciptionToken
+      responses:
+        "200":
+          description: Configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SubscriptionResult"
 
 components:
   parameters:
@@ -962,6 +1059,7 @@ components:
           - OUT
     TransactionLabel:
       name: label
+      description: list of label ids
       required: false
       in: query
       schema:
@@ -1037,6 +1135,58 @@ components:
         type: number
 
   schemas:
+    BasicConfiguration:
+      type: object
+      properties:
+        currency:
+          type: string
+          enum:
+            - MGA
+            - USD
+            - EUR
+        loginWithoutPassword:
+          type: boolean
+          description: Activate or desactivate login without password or not
+
+    Subscription:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+    SubscriptionResult:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Subscription"
+      properties:
+        endingDate:
+          type: string
+          format: date-time
+    TransactionConfiguration:
+      type: object
+      properties:
+        reccurency:
+          type: number
+          description: Time, day, month or year transaction notification reccurency
+        countDays:
+          type: number
+          description: Time, day, month or year transaction get to make notification
+    Configuration:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BasicConfiguration"
+      properties:
+        transaction:
+          allOf:
+            - $ref: "#/components/schemas/TransactionConfiguration"
+        subscription:
+          type: object
+          properties:
+            isActive:
+              type: boolean
+            endingDate:
+              type: string
+              format: date-time
     CreationGoal:
       type: object
       properties:
@@ -1092,6 +1242,9 @@ components:
           type: string
           format: uuid
         accountId:
+          type: string
+          format: uuid
+        goalId:
           type: string
           format: uuid
     Transaction:
@@ -1184,13 +1337,19 @@ components:
         id:
           type: string
           format: uuid
-
-    Credentials:
+    SignInCredentials:
       type: object
       properties:
-        username:
+        email:
           type: string
         password:
+          type: string
+    SignUpCredentials:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/SignInCredentials"
+      properties:
+        username:
           type: string
     SignUpResult:
       type: object
@@ -1199,6 +1358,8 @@ components:
           type: string
           format: uuid
         username:
+          type: string
+        email:
           type: string
     SignInResult:
       type: object

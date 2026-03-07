@@ -1,22 +1,20 @@
-# Credentials
+# Subscription
 
 ## Properties
 
-| Name       | Type   |
-| ---------- | ------ |
-| `username` | string |
-| `password` | string |
+| Name    | Type   |
+| ------- | ------ |
+| `token` | string |
 
 ## Example
 
 ```typescript
-import type { Credentials } from "";
+import type { Subscription } from "";
 
 // TODO: Update the object below with actual values
 const example = {
-  username: null,
-  password: null,
-} satisfies Credentials;
+  token: null,
+} satisfies Subscription;
 
 console.log(example);
 
@@ -25,7 +23,7 @@ const exampleJSON: string = JSON.stringify(example);
 console.log(exampleJSON);
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as Credentials;
+const exampleParsed = JSON.parse(exampleJSON) as Subscription;
 console.log(exampleParsed);
 ```
 
