@@ -1,9 +1,12 @@
 import { Account } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
 import * as jwt from "jsonwebtoken";
 
 import { getPrismaClient } from "@/configs";
 import { ApiError } from "@/errors";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AccountServices {
   static async singUp(userId: string, account: Account) {
@@ -37,7 +40,46 @@ export class AccountServices {
     return { token, account: account };
   }
 
+  static async signInWithGoogle(googleId: string, email: string, name: string) {
+    let account = await getPrismaClient().account.findFirst({
+      where: { OR: [{ googleId }, { email }] },
+    });
+
+    if (!account) {
+      const username = await AccountServices._generateUniqueUsername(name || email.split("@")[0]);
+
+      account = await getPrismaClient().account.create({
+        data: {
+          username,
+          email,
+          googleId,
+          provider: "google",
+          password: null,
+        },
+      });
+    } else if (!account.googleId) {
+      account = await getPrismaClient().account.update({
+        where: { id: account.id },
+        data: { googleId, provider: "google" },
+      });
+    }
+
+    const token = jwt.sign({ id: account.id, username: account.username, email: account.email }, process.env.JWT_SECRET, { expiresIn: "10h" });
+    account.password = undefined;
+    return { token, account };
+  }
+
   static async getOneById(accountId: string) {
     return await getPrismaClient().account.findUnique({ where: { id: accountId } });
+  }
+
+  private static async _generateUniqueUsername(base: string): Promise<string> {
+    const cleaned = base.replace(/\s+/g, "_").toLowerCase();
+    let username = cleaned;
+    let i = 1;
+    while (await getPrismaClient().account.findUnique({ where: { username } })) {
+      username = `${cleaned}_${i++}`;
+    }
+    return username;
   }
 }
