@@ -32,6 +32,10 @@ export interface SignUpRequest {
   signUpCredentials?: SignUpCredentials;
 }
 
+export interface SignInWithGoogleRequest {
+  idToken?: string;
+}
+
 /**
  *
  */
@@ -101,6 +105,32 @@ export class AuthApi extends runtime.BaseAPI {
    */
   async signUp(requestParameters: SignUpRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignUpResult> {
     const response = await this.signUpRaw(requestParameters, initOverrides);
+    return await response.value();
+  }
+
+  /**
+   * Login with Google account
+   */
+  async signInWithGoogleRaw(requestParameters: SignInWithGoogleRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInResult>> {
+    const headerParameters: runtime.HTTPHeaders = {};
+    headerParameters["Content-Type"] = "application/json";
+
+    const response = await this.request(
+      {
+        path: `/auth/sign-in/google`,
+        method: "POST",
+        headers: headerParameters,
+        query: {},
+        body: { idToken: requestParameters.idToken },
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) => SignInResultFromJSON(jsonValue));
+  }
+
+  async signInWithGoogle(requestParameters: SignInWithGoogleRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignInResult> {
+    const response = await this.signInWithGoogleRaw(requestParameters, initOverrides);
     return await response.value();
   }
 }
