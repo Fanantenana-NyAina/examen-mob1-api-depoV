@@ -12,6 +12,8 @@ model Account {
   username     String        @unique
   email        String        @default("")
   password     String?
+  resetPasswordToken     String?
+  resetPasswordExpiresAt DateTime?
   googleId     String?       @unique
   provider     String        @default("local")
   goals        Goal[]
