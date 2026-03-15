@@ -1,5 +1,6 @@
 export * from "./account-services";
 export * from "./configuration-services";
+export * from "./email-service";
 export * from "./goal-services";
 export * from "./label-services";
 export * from "./project-services";

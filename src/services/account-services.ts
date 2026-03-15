@@ -1,12 +1,11 @@
 import { Account } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
-import { OAuth2Client } from "google-auth-library";
 import * as jwt from "jsonwebtoken";
 
 import { getPrismaClient } from "@/configs";
 import { ApiError } from "@/errors";
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+import { EmailService } from "./email-service";
 
 export class AccountServices {
   static async singUp(userId: string, account: Account) {
@@ -81,5 +80,48 @@ export class AccountServices {
       username = `${cleaned}_${i++}`;
     }
     return username;
+  }
+
+  static async forgotPassword(email: string) {
+    const account = await getPrismaClient().account.findFirst({ where: { email } });
+
+    if (!account) return;
+
+    const token = require("crypto").randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1h
+
+    await getPrismaClient().account.update({
+      where: { id: account.id },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpiresAt: expiresAt,
+      },
+    });
+
+    await EmailService.sendResetPasswordEmail(account.email, token);
+  }
+
+  static async resetPassword(token: string, newPassword: string) {
+    const account = await getPrismaClient().account.findFirst({
+      where: { resetPasswordToken: token },
+    });
+
+    if (!account) throw new ApiError("Invalid or expired token", 400);
+
+    if (!account.resetPasswordExpiresAt || account.resetPasswordExpiresAt < new Date()) {
+      throw new ApiError("Token has expired", 400);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await getPrismaClient().account.update({
+      where: { id: account.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpiresAt: null,
+      },
+    });
   }
 }

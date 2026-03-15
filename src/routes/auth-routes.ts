@@ -7,3 +7,5 @@ export const authRouter = express.Router();
 authRouter.post("/sign-up", AccountController.signUp);
 authRouter.post("/sign-in", AccountController.signIn);
 authRouter.post("/sign-in/google", AccountController.signInWithGoogle);
+authRouter.post("/forgot-password", AccountController.forgotPassword);
+authRouter.post("/reset-password", AccountController.resetPassword);

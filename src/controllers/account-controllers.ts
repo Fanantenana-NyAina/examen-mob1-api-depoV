@@ -52,4 +52,24 @@ export class AccountController {
       next(err);
     }
   };
+  static readonly forgotPassword: RequestHandler = async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      if (!email) throw new ApiError("Email is required", 400);
+      await AccountServices.forgotPassword(email);
+      res.json({ message: "If this email exists, a reset link has been sent" });
+    } catch (err) {
+      next(err);
+    }
+  };
+  static readonly resetPassword: RequestHandler = async (req, res, next) => {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token || !newPassword) throw new ApiError("token and newPassword are required", 400);
+      await AccountServices.resetPassword(token, newPassword);
+      res.json({ message: "Password updated successfully" });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
